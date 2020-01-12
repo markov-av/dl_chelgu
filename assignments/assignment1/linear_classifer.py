@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def softmax(predictions):
+def softmax(predictions, multi_dim=False):
     '''
     Computes probabilities from scores
 
@@ -16,10 +16,12 @@ def softmax(predictions):
     # TODO implement softmax
     # Your final implementation shouldn't have any loops
     predictions -= np.max(predictions)
-    return np.exp(predictions) / np.sum(np.exp(predictions))
+    return np.exp(predictions) / np.sum(np.exp(predictions), axis=1)\
+        .reshape(predictions.shape[0], 1) \
+        if multi_dim else np.exp(predictions) / np.sum(np.exp(predictions))
 
 
-def cross_entropy_loss(probs, target_index):
+def cross_entropy_loss(probs, target_index, multi_dim=False):
     '''
     Computes cross-entropy loss
 
@@ -34,7 +36,12 @@ def cross_entropy_loss(probs, target_index):
     '''
     # TODO implement cross-entropy
     # Your final implementation shouldn't have any loops
-    raise Exception("Not implemented!")
+    # print(probs, target_index)
+    if multi_dim:
+        loss = -np.sum(np.log(probs.T[target_index.T]))
+    else:
+        loss = -np.sum(np.log(probs[target_index]))
+    return loss
 
 
 def softmax_with_cross_entropy(predictions, target_index):
@@ -54,8 +61,18 @@ def softmax_with_cross_entropy(predictions, target_index):
     '''
     # TODO implement softmax with cross-entropy
     # Your final implementation shouldn't have any loops
-    raise Exception("Not implemented!")
-
+    if predictions.ndim == 1:
+        d_zeros_pred = np.zeros(predictions.shape)
+        d_zeros_pred[target_index] = 1
+        loss = cross_entropy_loss(softmax(predictions.copy()), target_index)
+        dprediction = softmax(predictions.copy()) - d_zeros_pred
+    else:
+        d_zeros_pred = np.zeros(predictions.shape)
+        d_zeros_pred[np.arange(len(target_index)), target_index.reshape(1, -1)] = 1
+        loss = cross_entropy_loss(softmax(predictions.copy(), multi_dim=True),
+                                  target_index,
+                                  multi_dim=True)
+        dprediction = softmax(predictions.copy(), multi_dim=True) - d_zeros_pred
     return loss, dprediction
 
 
