@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def softmax(predictions, multi_dim=False):
+def softmax(predictions):
     '''
     Computes probabilities from scores
 
@@ -15,10 +15,12 @@ def softmax(predictions, multi_dim=False):
     '''
     # TODO implement softmax
     # Your final implementation shouldn't have any loops
-    predictions -= np.max(predictions)
-    return np.exp(predictions) / np.sum(np.exp(predictions), axis=1)\
-        .reshape(predictions.shape[0], 1) \
-        if multi_dim else np.exp(predictions) / np.sum(np.exp(predictions))
+    if predictions.ndim == 1:
+        predictions -= np.max(predictions)
+        return np.exp(predictions) / np.sum(np.exp(predictions))
+    else:
+        predictions -= np.amax(predictions, axis=1).reshape(predictions.shape[0], 1)
+        return np.exp(predictions) / np.sum(np.exp(predictions), axis=1).reshape((predictions.shape[0], 1))
 
 
 def cross_entropy_loss(probs, target_index, multi_dim=False):
@@ -37,10 +39,10 @@ def cross_entropy_loss(probs, target_index, multi_dim=False):
     # TODO implement cross-entropy
     # Your final implementation shouldn't have any loops
     # print(probs, target_index)
-    if multi_dim:
-        loss = -np.sum(np.log(probs.T[target_index.T]))
-    else:
+    if probs.ndim == 1:
         loss = -np.sum(np.log(probs[target_index]))
+    else:
+        loss = -np.sum(np.log(probs.T[target_index.T]))
     return loss
 
 
@@ -64,15 +66,11 @@ def softmax_with_cross_entropy(predictions, target_index):
     if predictions.ndim == 1:
         d_zeros_pred = np.zeros(predictions.shape)
         d_zeros_pred[target_index] = 1
-        loss = cross_entropy_loss(softmax(predictions.copy()), target_index)
-        dprediction = softmax(predictions.copy()) - d_zeros_pred
     else:
         d_zeros_pred = np.zeros(predictions.shape)
         d_zeros_pred[np.arange(len(target_index)), target_index.reshape(1, -1)] = 1
-        loss = cross_entropy_loss(softmax(predictions.copy(), multi_dim=True),
-                                  target_index,
-                                  multi_dim=True)
-        dprediction = softmax(predictions.copy(), multi_dim=True) - d_zeros_pred
+    loss = cross_entropy_loss(softmax(predictions.copy()), target_index)
+    dprediction = softmax(predictions.copy()) - d_zeros_pred
     return loss, dprediction
 
 
