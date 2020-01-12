@@ -38,11 +38,11 @@ def cross_entropy_loss(probs, target_index, multi_dim=False):
     '''
     # TODO implement cross-entropy
     # Your final implementation shouldn't have any loops
-    # print(probs, target_index)
     if probs.ndim == 1:
         loss = -np.sum(np.log(probs[target_index]))
     else:
-        loss = -np.sum(np.log(probs.T[target_index.T]))
+        loss = -np.sum(
+            np.log(probs[np.arange(target_index.shape[0]), target_index.reshape(1, -1)]))
     return loss
 
 
@@ -89,8 +89,8 @@ def l2_regularization(W, reg_strength):
 
     # TODO: implement l2 regularization and gradient
     # Your final implementation shouldn't have any loops
-    raise Exception("Not implemented!")
-
+    loss = reg_strength * np.sum(W * W)
+    grad = reg_strength * 2 * W
     return loss, grad
     
 
@@ -109,11 +109,9 @@ def linear_softmax(X, W, target_index):
 
     '''
     predictions = np.dot(X, W)
+    loss, dprediction = softmax_with_cross_entropy(predictions, target_index)
+    dW = X.T.dot(dprediction)
 
-    # TODO implement prediction and gradient over W
-    # Your final implementation shouldn't have any loops
-    raise Exception("Not implemented!")
-    
     return loss, dW
 
 
