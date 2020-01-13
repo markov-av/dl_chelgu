@@ -23,7 +23,7 @@ def softmax(predictions):
         return np.exp(predictions) / np.sum(np.exp(predictions), axis=1).reshape((predictions.shape[0], 1))
 
 
-def cross_entropy_loss(probs, target_index, multi_dim=False):
+def cross_entropy_loss(probs, target_index):
     '''
     Computes cross-entropy loss
 
