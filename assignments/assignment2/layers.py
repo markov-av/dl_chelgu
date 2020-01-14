@@ -138,6 +138,9 @@ class ReLULayer:
         # ReLU Doesn't have any parameters
         return {}
 
+    def gradients_reset(self):
+        pass
+
 
 class FullyConnectedLayer:
     def __init__(self, n_input, n_output):
@@ -146,8 +149,6 @@ class FullyConnectedLayer:
         self.X = None
 
     def forward(self, X):
-        # TODO: Implement forward pass
-        # Your final implementation shouldn't have any loops
         self.X = X.copy()
         return np.dot(X, self.W.value) + self.B.value
 
@@ -169,12 +170,19 @@ class FullyConnectedLayer:
         # Compute both gradient with respect to input
         # and gradients with respect to W and B
         # Add gradients of W and B to their `grad` attribute
-
         # It should be pretty similar to linear classifier from
         # the previous assignment
-        # np.dot(self.W, d_out)
-        #
-        # return d_input
+
+        dx = np.dot(d_out, self.W.value.T)
+        dw = np.dot(self.X.T, d_out)
+        self.W.grad = dw
+        db = np.dot(np.ones(shape=(1, self.X.shape[0])), d_out)
+        self.B.grad = db
+        return dx
 
     def params(self):
         return {'W': self.W, 'B': self.B}
+
+    def gradients_reset(self):
+        self.W.grad = np.zeros_like(self.W.value)
+        self.B.grad = np.zeros_like(self.B.value)
