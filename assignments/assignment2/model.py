@@ -37,11 +37,11 @@ class TwoLayerNet:
         for layer in self.layers:
             layer.gradients_reset()
         # Hint: using self.params() might be useful!
-        x = X.copy()
         for layer in self.layers:
-            x = layer.forward(X)
+            # print('     ', X.shape)
+            X = layer.forward(X)
         # TODO Compute loss and fill param gradients
-        loss, dprediction = softmax_with_cross_entropy(x, y)
+        loss, dprediction = softmax_with_cross_entropy(X, y)
         # by running forward and backward passes through the model
         for layer in reversed(self.layers):
             dprediction = layer.backward(dprediction)
@@ -68,7 +68,7 @@ class TwoLayerNet:
         # TODO: Implement predict
         # Hint: some of the code of the compute_loss_and_gradients
         # can be reused
-        pred = np.zeros(X.shape[0], np.int)
+        pred = X.copy()
         for layer in self.layers:
             pred = layer.forward(pred)
 
